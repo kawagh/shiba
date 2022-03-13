@@ -46,21 +46,20 @@ class CommitsViewModel(application: Application) : AndroidViewModel(application)
     fun getCommitIds(): List<String>? =
         commitsInDatabase.value?.map { it.id.toString() }?.distinct()
 
-    fun getUniqueNames(): List<String> = dummyRecentCommits.map { it.name }.distinct()
-
     fun hasCommitsInWeek(): SnapshotStateList<Boolean> = List(7) { index ->
         val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString()).toString()
         dummyRecentCommits.any { it.date == nDaysAgo }
     }.reversed().toMutableStateList()
-
-    fun hasCommitsInWeekAbout(name: String): SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString()).toString()
-        dummyRecentCommits.any { it.date == nDaysAgo && it.name == name }
-    }.reversed().toMutableStateList()
-
 }
 
 fun State<List<Commit>>.toRecentProgress(): SnapshotStateList<Boolean> = List(7) { index ->
     val daysWithCommits = this.value.map { it.date }.distinct()
     daysWithCommits.contains(LocalDate.now().minusDays((6 - index).toLong()).toString())
 }.toMutableStateList()
+
+fun State<List<Commit>>.toRecentProgressAbout(name: String): SnapshotStateList<Boolean> =
+    List(7) { index ->
+        val daysWithCommits = this.value.filter { it.name == name }.map { it.date }.distinct()
+        daysWithCommits.contains(LocalDate.now().minusDays((6 - index).toLong()).toString())
+    }.toMutableStateList()
+
