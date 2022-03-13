@@ -99,7 +99,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                     tasks = keys,
                     onCommitClick = handleCommitClick,
                 )
-                TabItem.Register -> RegisterContent()
+                TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
             }
         },
         bottomBar = {
@@ -165,8 +165,31 @@ fun CheckContent(tasks: List<String>, onCommitClick: (String) -> Unit) {
 
 
 @Composable
-fun RegisterContent() {
-    Text(text = "register content")
+fun RegisterContent(handleAddClick: (String) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "register content")
+        var text by remember {
+            mutableStateOf("")
+        }
+        Row() {
+            TextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text(text = "name") },
+            )
+            Button(onClick = {
+                if (text.isNotEmpty()) {
+                    handleAddClick(text)
+                }
+            }) {
+                Text(text = "Add")
+            }
+        }
+    }
 }
 
 @Composable
