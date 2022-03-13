@@ -17,7 +17,6 @@ import java.time.LocalDate
 @Composable
 fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     val progressesDummy = List(7) { false }.toMutableStateList()
-    val progressesTotal = viewModel.hasCommitsInWeek()
     val onPanelClick: (Int) -> Unit = {
         progressesDummy[it] = !progressesDummy[it]
     }
@@ -33,6 +32,8 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
 
+    val totalRecentProgress =
+        viewModel.commitsInDatabase.observeAsState(initial = listOf()).toRecentProgress()
     val recentProgressMap: Map<String, SnapshotStateList<Boolean>> =
         uniqueCommitNames.associateWith {
             viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgressAbout(it)
@@ -51,7 +52,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 onClearClick = { viewModel.clear() }
             )
             when (tabItems[selectedTabIndex]) {
-                TabItem.Lists -> ListContent(recentProgressMap, progressesTotal, onPanelClick)
+                TabItem.Lists -> ListContent(recentProgressMap, totalRecentProgress, onPanelClick)
                 TabItem.Check -> CheckContent(
                     commitNames = uniqueCommitNames,
                     onCommitClick = handleCommitClick,
