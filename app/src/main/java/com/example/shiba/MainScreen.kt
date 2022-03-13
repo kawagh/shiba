@@ -29,7 +29,9 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     val onPanelClick: (Int) -> Unit = {
         progressesDummy[it] = !progressesDummy[it]
     }
-    val keys = viewModel.getUniqueNames()
+    val uniqueCommitNames =
+        viewModel.commitsInDatabase.observeAsState(initial = listOf()).value.map { it.name }
+            .distinct()
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
@@ -72,7 +74,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                             text = "recent 7 days",
                             fontSize = 20.sp
                         )
-                        keys.forEach {
+                        uniqueCommitNames.forEach {
                             ListsContent(
                                 progresses = viewModel.hasCommitsInWeekAbout(it),
                                 onPanelClick = onPanelClick,
@@ -96,7 +98,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                         )
                     }
                 TabItem.Check -> CheckContent(
-                    tasks = keys,
+                    commitNames = uniqueCommitNames,
                     onCommitClick = handleCommitClick,
                 )
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
@@ -145,13 +147,13 @@ fun ListsContent(
 }
 
 @Composable
-fun CheckContent(tasks: List<String>, onCommitClick: (String) -> Unit) {
+fun CheckContent(commitNames: List<String>, onCommitClick: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        items(tasks) {
+        items(commitNames) {
             Row() {
                 Text(text = "daily tasks: $it", fontSize = 25.sp)
                 Button(onClick = { onCommitClick(it) }) {
