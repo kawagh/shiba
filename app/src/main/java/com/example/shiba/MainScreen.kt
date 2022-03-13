@@ -16,16 +16,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shiba.ui.theme.Glass
-import java.sql.Date
-import java.time.LocalDate
 
 @Composable
-fun MainScreen() {
-    val progresses = List(7) { it % 2 == 0 }.toMutableStateList()
+fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
+    val progressesDummy = List(7) { it % 2 == 0 }.toMutableStateList()
+    val progressesTotal = viewModel.hasCommitsInWeek()
     val onPanelClick: (Int) -> Unit = {
-        progresses[it] = !progresses[it]
+        progressesDummy[it] = !progressesDummy[it]
     }
+    val keys = viewModel.getUniqueNames()
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
@@ -35,7 +36,34 @@ fun MainScreen() {
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
         content = {
             when (tabItems[selectedTabIndex]) {
-                TabItem.Lists -> ListsContent(progresses = progresses, onPanelClick = onPanelClick)
+                TabItem.Lists ->
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            text = "recent 7 days",
+                            fontSize = 20.sp
+                        )
+                        keys.forEach {
+                            ListsContent(
+                                progresses = viewModel.hasCommitsInWeekAbout(it),
+                                onPanelClick = onPanelClick,
+                                name = it
+                            )
+                        }
+                        ListsContent(
+                            progresses = progressesTotal,
+                            onPanelClick = onPanelClick,
+                            name = "total"
+                        )
+                        ListsContent(
+                            progresses = progressesDummy,
+                            onPanelClick = onPanelClick,
+                            name = "dummy"
+                        )
+                    }
                 TabItem.Check -> CheckContent()
                 TabItem.Register -> RegisterContent()
             }
@@ -72,61 +100,15 @@ fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick:
 
 @Composable
 fun ListsContent(
+    name: String,
     progresses: SnapshotStateList<Boolean>,
     onPanelClick: (Int) -> Unit
 ) {
-
-    val dummyRecentCommits: List<Commit> = listOf(
-        Commit(0, "dev", Date.valueOf(LocalDate.now().toString())),
-        Commit(
-            0, "dev", Date.valueOf(LocalDate.now().minusDays(1).toString())
-        ),
-        Commit(
-            0, "read", Date.valueOf(LocalDate.now().minusDays(5).toString())
-        ),
-        Commit(
-            0, "dev", Date.valueOf(LocalDate.now().minusDays(2).toString())
-        )
-    )
-    // TODO use ViewModel
-    val hasCommitsInWeek: SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
-        dummyRecentCommits.any { it.date == nDaysAgo }
-    }.reversed().toMutableStateList()
-    val hasCommitsInWeekAboutRead: SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
-        dummyRecentCommits.any { it.date == nDaysAgo && it.name == "read" }
-    }.reversed().toMutableStateList()
-    val hasCommitsInWeekAboutDev: SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
-        dummyRecentCommits.any { it.date == nDaysAgo && it.name == "dev" }
-    }.reversed().toMutableStateList()
-
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-
-        dummyRecentCommits.forEach {
-            Text(text = it.toString())
-        }
-        Text(text = "read")
-        PanelRow(panels = hasCommitsInWeekAboutRead, onPanelClick = {})
-        Text(text = "dev")
-        PanelRow(panels = hasCommitsInWeekAboutDev, onPanelClick = {})
-        Text(text = "total")
-        PanelRow(panels = hasCommitsInWeek, onPanelClick = {})
-
-        Text(
-            text = "recent 7 days",
-            fontSize = 20.sp
-        )
-        PanelRow(panels = progresses, onPanelClick = onPanelClick)
+    Column {
+        Text(text = name)
+        PanelRow(progresses, onPanelClick = onPanelClick)
     }
 }
-
 
 @Composable
 fun CheckContent() {
