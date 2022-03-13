@@ -6,11 +6,13 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,12 +27,13 @@ fun MainScreen() {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
+    val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
     Scaffold(
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
         content = {
-            when (selectedTabIndex) {
-                0 -> {
+            when (tabItems[selectedTabIndex]) {
+                TabItem.Lists -> {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,29 +47,33 @@ fun MainScreen() {
 
                     }
                 }
-                1 -> CheckContent()
-                2 -> RegisterContent()
-                else -> {
-                    Text(text = "not reach")
-                }
+                TabItem.Check -> CheckContent()
+                TabItem.Register -> RegisterContent()
             }
         },
         bottomBar = {
             BottomNavigation(
                 selectedTabIndex = selectedTabIndex,
-                onTabClick = { selectedTabIndex = it })
+                onTabClick = { selectedTabIndex = it },
+                tabItems = tabItems
+            )
         }
     )
 }
 
+sealed class TabItem(val name: String, val icon: ImageVector) {
+    object Lists : TabItem("Lists", Icons.Filled.List)
+    object Check : TabItem("Check", Icons.Filled.Done)
+    object Register : TabItem("Register", Icons.Filled.Add)
+}
+
 @Composable
-fun BottomNavigation(selectedTabIndex: Int, onTabClick: (Int) -> Unit) {
-    val items = listOf("list", "check", "register")
+fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick: (Int) -> Unit) {
     BottomNavigation {
-        items.forEachIndexed { index, item ->
+        tabItems.forEachIndexed { index, item ->
             BottomNavigationItem(
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                label = { Text(item) },
+                icon = { Icon(item.icon, contentDescription = null) },
+                label = { Text(item.name) },
                 selected = selectedTabIndex == index,
                 onClick = { onTabClick(index) }
             )
@@ -92,6 +99,7 @@ fun CheckContent() {
         }
     }
 }
+
 
 @Composable
 fun RegisterContent() {
