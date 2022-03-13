@@ -1,12 +1,20 @@
 package com.example.shiba
 
+import android.app.Application
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
 
-class CommitsViewModel : ViewModel() {
+class CommitsViewModel(application: Application) : AndroidViewModel(application) {
+    private val db: AppDatabase = AppDatabase.getInstance(application)
+    internal val commits: LiveData<List<Commit>> = db.commitDao().getAll()
+
 
     private val dummyRecentCommits: List<Commit> = listOf(
         Commit(0, "dev", Date.valueOf(LocalDate.now().toString()).toString()),
@@ -20,6 +28,19 @@ class CommitsViewModel : ViewModel() {
             0, "dev", Date.valueOf(LocalDate.now().minusDays(2).toString()).toString()
         )
     )
+
+
+    fun insert(commit: Commit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.commitDao().insert(commit)
+        }
+    }
+
+    fun clear() {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.commitDao().deleteAll()
+        }
+    }
 
     fun getUniqueNames(): List<String> = dummyRecentCommits.map { it.name }.distinct()
 

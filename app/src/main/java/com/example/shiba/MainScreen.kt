@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shiba.ui.theme.Glass
+import java.time.LocalDate
 
 @Composable
 fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
@@ -32,10 +34,23 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         mutableStateOf(0)
     }
     val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
+    val allCommitsInDatabase: State<List<Commit>> =
+        viewModel.commits.observeAsState(initial = listOf())
     Scaffold(
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
         content = {
+            Column() {
+                Text(
+                    text = allCommitsInDatabase.value.toString()
+                )
+                Button(onClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) }) {
+                    Text(text = "add")
+                }
+                Button(onClick = { viewModel.clear() }) {
+                    Text(text = "reset")
+                }
+            }
             when (tabItems[selectedTabIndex]) {
                 TabItem.Lists ->
                     Column(
