@@ -76,7 +76,8 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                         )
                         uniqueCommitNames.forEach {
                             ListsContent(
-                                progresses = viewModel.hasCommitsInWeekAbout(it),
+                                progresses = viewModel.commitsInDatabase.observeAsState(listOf())
+                                    .toRecentProgressAbout(it),
                                 onPanelClick = onPanelClick,
                                 name = it
                             )
