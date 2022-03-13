@@ -1,6 +1,7 @@
 package com.example.shiba
 
 import android.app.Application
+import androidx.compose.runtime.State
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
@@ -58,3 +59,8 @@ class CommitsViewModel(application: Application) : AndroidViewModel(application)
     }.reversed().toMutableStateList()
 
 }
+
+fun State<List<Commit>>.toRecentProgress(): SnapshotStateList<Boolean> = List(7) { index ->
+    val daysWithCommits = this.value.map { it.date }.distinct()
+    daysWithCommits.contains(LocalDate.now().minusDays((6 - index).toLong()).toString())
+}.toMutableStateList()

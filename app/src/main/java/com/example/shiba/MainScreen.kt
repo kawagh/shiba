@@ -35,19 +35,13 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     }
     val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
 
-    // Livedata.observeAsState can be invoked in composableScope so I dont know how to do this convert in viewmodel
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
-    (0 until 7L).forEach {
-        if (daysWithCommits.contains(
-                LocalDate.now().minusDays(it).toString()
-            )
-        ) progressesDummy[6 - it.toInt()] =
-            true
+    val recentProgress = viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgress()
+    val handleCommitClick: (String) -> Unit = {
+        viewModel.insert(Commit(id = 0, it, LocalDate.now().toString()))
     }
-    //
-
     Scaffold(
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
@@ -56,7 +50,9 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 Text(
                     text = allCommitsInDatabase.value.toString()
                 )
-                Text(text = daysWithCommits.toString())
+                Text(
+                    text = daysWithCommits.toString()
+                )
                 Text(text = viewModel.getCommitIds().toString())
                 Button(onClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) }) {
                     Text(text = "add")
@@ -89,12 +85,20 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                             name = "total"
                         )
                         ListsContent(
+                            progresses = recentProgress,
+                            onPanelClick = onPanelClick,
+                            name = "dummy2"
+                        )
+                        ListsContent(
                             progresses = progressesDummy,
                             onPanelClick = onPanelClick,
                             name = "dummy"
                         )
                     }
-                TabItem.Check -> CheckContent(keys)
+                TabItem.Check -> CheckContent(
+                    tasks = keys,
+                    onCommitClick = handleCommitClick,
+                )
                 TabItem.Register -> RegisterContent()
             }
         },
@@ -141,7 +145,7 @@ fun ListsContent(
 }
 
 @Composable
-fun CheckContent(tasks: List<String>) {
+fun CheckContent(tasks: List<String>, onCommitClick: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -150,7 +154,7 @@ fun CheckContent(tasks: List<String>) {
         items(tasks) {
             Row() {
                 Text(text = "daily tasks: $it", fontSize = 25.sp)
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { onCommitClick(it) }) {
                     Icon(Icons.Default.Done, "done")
                 }
             }
