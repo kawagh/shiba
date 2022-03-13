@@ -13,7 +13,7 @@ import java.time.LocalDate
 
 class CommitsViewModel(application: Application) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
-    internal val commits: LiveData<List<Commit>> = db.commitDao().getAll()
+    internal val commitsInDatabase: LiveData<List<Commit>> = db.commitDao().getAll()
 
 
     private val dummyRecentCommits: List<Commit> = listOf(
@@ -41,6 +41,9 @@ class CommitsViewModel(application: Application) : AndroidViewModel(application)
             db.commitDao().deleteAll()
         }
     }
+
+    fun getCommitIds(): List<String>? =
+        commitsInDatabase.value?.map { it.id.toString() }?.distinct()
 
     fun getUniqueNames(): List<String> = dummyRecentCommits.map { it.name }.distinct()
 

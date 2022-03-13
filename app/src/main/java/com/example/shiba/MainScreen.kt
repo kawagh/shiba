@@ -24,7 +24,7 @@ import java.time.LocalDate
 
 @Composable
 fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
-    val progressesDummy = List(7) { it % 2 == 0 }.toMutableStateList()
+    val progressesDummy = List(7) { false }.toMutableStateList()
     val progressesTotal = viewModel.hasCommitsInWeek()
     val onPanelClick: (Int) -> Unit = {
         progressesDummy[it] = !progressesDummy[it]
@@ -34,8 +34,20 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         mutableStateOf(0)
     }
     val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
+
+    // Livedata.observeAsState can be invoked in composableScope so I dont know how to do this convert in viewmodel
     val allCommitsInDatabase: State<List<Commit>> =
-        viewModel.commits.observeAsState(initial = listOf())
+        viewModel.commitsInDatabase.observeAsState(initial = listOf())
+    val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
+    (0 until 7L).forEach {
+        if (daysWithCommits.contains(
+                LocalDate.now().minusDays(it).toString()
+            )
+        ) progressesDummy[6 - it.toInt()] =
+            true
+    }
+    //
+
     Scaffold(
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
@@ -44,6 +56,8 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 Text(
                     text = allCommitsInDatabase.value.toString()
                 )
+                Text(text = daysWithCommits.toString())
+                Text(text = viewModel.getCommitIds().toString())
                 Button(onClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) }) {
                     Text(text = "add")
                 }
