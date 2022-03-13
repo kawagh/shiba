@@ -2,6 +2,7 @@ package com.example.shiba
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -64,7 +65,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                             name = "dummy"
                         )
                     }
-                TabItem.Check -> CheckContent()
+                TabItem.Check -> CheckContent(keys)
                 TabItem.Register -> RegisterContent()
             }
         },
@@ -111,13 +112,13 @@ fun ListsContent(
 }
 
 @Composable
-fun CheckContent() {
+fun CheckContent(tasks: List<String>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        items(5) {
+        items(tasks) {
             Row() {
                 Text(text = "daily tasks: $it", fontSize = 25.sp)
                 Button(onClick = { /*TODO*/ }) {
