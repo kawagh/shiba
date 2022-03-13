@@ -9,27 +9,27 @@ import java.time.LocalDate
 class CommitsViewModel : ViewModel() {
 
     private val dummyRecentCommits: List<Commit> = listOf(
-        Commit(0, "dev", Date.valueOf(LocalDate.now().toString())),
+        Commit(0, "dev", Date.valueOf(LocalDate.now().toString()).toString()),
         Commit(
-            0, "dev", Date.valueOf(LocalDate.now().minusDays(1).toString())
+            0, "dev", Date.valueOf(LocalDate.now().minusDays(1).toString()).toString()
         ),
         Commit(
-            0, "read", Date.valueOf(LocalDate.now().minusDays(5).toString())
+            0, "read", Date.valueOf(LocalDate.now().minusDays(5).toString()).toString()
         ),
         Commit(
-            0, "dev", Date.valueOf(LocalDate.now().minusDays(2).toString())
+            0, "dev", Date.valueOf(LocalDate.now().minusDays(2).toString()).toString()
         )
     )
 
     fun getUniqueNames(): List<String> = dummyRecentCommits.map { it.name }.distinct()
 
     fun hasCommitsInWeek(): SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
+        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString()).toString()
         dummyRecentCommits.any { it.date == nDaysAgo }
     }.reversed().toMutableStateList()
 
     fun hasCommitsInWeekAbout(name: String): SnapshotStateList<Boolean> = List(7) { index ->
-        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
+        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString()).toString()
         dummyRecentCommits.any { it.date == nDaysAgo && it.name == name }
     }.reversed().toMutableStateList()
 
