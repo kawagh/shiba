@@ -34,7 +34,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
 
     val totalRecentProgress =
         viewModel.commitsInDatabase.observeAsState(initial = listOf()).toRecentProgress()
-    val recentProgressMap: Map<String, SnapshotStateList<Boolean>> =
+    val recentProgressMap: Map<String, SnapshotStateList<Int>> =
         uniqueCommitNames.associateWith {
             viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgressAbout(it)
         }

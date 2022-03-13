@@ -14,12 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shiba.ui.theme.Glass
+import com.example.shiba.ui.theme.HeavyGlass
+import com.example.shiba.ui.theme.LightGlass
+import com.example.shiba.ui.theme.Purple200
 import java.time.LocalDate
 
 @Composable
 fun ListContent(
-    recentProgresses: Map<String, SnapshotStateList<Boolean>>,
-    progressesTotal: SnapshotStateList<Boolean>,
+    recentProgresses: Map<String, SnapshotStateList<Int>>,
+    progressesTotal: SnapshotStateList<Int>,
     onPanelClick: (Int) -> Unit,
 ) {
     Column(
@@ -45,7 +48,7 @@ fun ListContent(
 @Composable
 fun CommitLines(
     name: String,
-    progresses: SnapshotStateList<Boolean>,
+    progresses: SnapshotStateList<Int>,
     onPanelClick: (Int) -> Unit
 ) {
     Column {
@@ -56,7 +59,7 @@ fun CommitLines(
 
 @Composable
 fun PanelRow(
-    panels: SnapshotStateList<Boolean>,
+    panels: SnapshotStateList<Int>,
     onPanelClick: (Int) -> Unit,
 ) {
     Row {
@@ -70,20 +73,27 @@ fun PanelRow(
 }
 
 @Composable
-fun Panel(panel: Boolean, onClick: () -> Unit) {
+fun Panel(panel: Int, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .size(30.dp),
         colors = when (panel) {
-            true ->
-                ButtonDefaults.textButtonColors(
-                    backgroundColor = Glass
-                )
-            false ->
+            0 ->
                 ButtonDefaults.textButtonColors(
                     backgroundColor = Color.White
                 )
+            1 ->
+                ButtonDefaults.textButtonColors(
+                    backgroundColor = LightGlass
+                )
+            in 2..3 ->
+                ButtonDefaults.textButtonColors(
+                    backgroundColor = Glass
+                )
+            else -> ButtonDefaults.textButtonColors(
+                backgroundColor = HeavyGlass
+            )
         }
     ) {
     }
