@@ -39,7 +39,9 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
     val recentProgress = viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgress()
-
+    val handleCommitClick: (String) -> Unit = {
+        viewModel.insert(Commit(id = 0, it, LocalDate.now().toString()))
+    }
     Scaffold(
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
@@ -93,7 +95,10 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                             name = "dummy"
                         )
                     }
-                TabItem.Check -> CheckContent(keys)
+                TabItem.Check -> CheckContent(
+                    tasks = keys,
+                    onCommitClick = handleCommitClick,
+                )
                 TabItem.Register -> RegisterContent()
             }
         },
@@ -140,7 +145,7 @@ fun ListsContent(
 }
 
 @Composable
-fun CheckContent(tasks: List<String>) {
+fun CheckContent(tasks: List<String>, onCommitClick: (String) -> Unit) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,7 +154,7 @@ fun CheckContent(tasks: List<String>) {
         items(tasks) {
             Row() {
                 Text(text = "daily tasks: $it", fontSize = 25.sp)
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = { onCommitClick(it) }) {
                     Icon(Icons.Default.Done, "done")
                 }
             }
