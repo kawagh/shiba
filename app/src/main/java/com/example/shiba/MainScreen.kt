@@ -1,8 +1,6 @@
 package com.example.shiba
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -11,15 +9,9 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.shiba.ui.theme.Glass
 import java.time.LocalDate
 
 @Composable
@@ -40,7 +32,11 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
-    val recentProgress = viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgress()
+
+    val recentProgressMap: Map<String, SnapshotStateList<Boolean>> =
+        uniqueCommitNames.associateWith {
+            viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgressAbout(it)
+        }
     val handleCommitClick: (String) -> Unit = {
         viewModel.insert(Commit(id = 0, it, LocalDate.now().toString()))
     }
@@ -48,56 +44,14 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         topBar =
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
         content = {
-            Column() {
-                Text(
-                    text = allCommitsInDatabase.value.toString()
-                )
-                Text(
-                    text = daysWithCommits.toString()
-                )
-                Text(text = viewModel.getCommitIds().toString())
-                Button(onClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) }) {
-                    Text(text = "add")
-                }
-                Button(onClick = { viewModel.clear() }) {
-                    Text(text = "reset")
-                }
-            }
+            DebugSection(
+                allCommits = allCommitsInDatabase.value,
+                daysWithCommits = daysWithCommits,
+                onAddClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) },
+                onClearClick = { viewModel.clear() }
+            )
             when (tabItems[selectedTabIndex]) {
-                TabItem.Lists ->
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = "recent 7 days",
-                            fontSize = 20.sp
-                        )
-                        uniqueCommitNames.forEach {
-                            ListsContent(
-                                progresses = viewModel.commitsInDatabase.observeAsState(listOf())
-                                    .toRecentProgressAbout(it),
-                                onPanelClick = onPanelClick,
-                                name = it
-                            )
-                        }
-                        ListsContent(
-                            progresses = progressesTotal,
-                            onPanelClick = onPanelClick,
-                            name = "total"
-                        )
-                        ListsContent(
-                            progresses = recentProgress,
-                            onPanelClick = onPanelClick,
-                            name = "dummy2"
-                        )
-                        ListsContent(
-                            progresses = progressesDummy,
-                            onPanelClick = onPanelClick,
-                            name = "dummy"
-                        )
-                    }
+                TabItem.Lists -> ListContent(recentProgressMap, progressesTotal, onPanelClick)
                 TabItem.Check -> CheckContent(
                     commitNames = uniqueCommitNames,
                     onCommitClick = handleCommitClick,
@@ -122,6 +76,26 @@ sealed class TabItem(val name: String, val icon: ImageVector) {
 }
 
 @Composable
+fun DebugSection(
+    allCommits: List<Commit>,
+    daysWithCommits: List<String>,
+    onAddClick: () -> Unit,
+    onClearClick: () -> Unit
+) {
+    Column() {
+        Text(text = allCommits.toString())
+        Text(text = daysWithCommits.toString())
+        Button(onClick = onAddClick) {
+            Text(text = "add")
+        }
+        Button(onClick = onClearClick) {
+            Text(text = "reset")
+        }
+    }
+
+}
+
+@Composable
 fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick: (Int) -> Unit) {
     BottomNavigation {
         tabItems.forEachIndexed { index, item ->
@@ -132,100 +106,5 @@ fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick:
                 onClick = { onTabClick(index) }
             )
         }
-    }
-}
-
-@Composable
-fun ListsContent(
-    name: String,
-    progresses: SnapshotStateList<Boolean>,
-    onPanelClick: (Int) -> Unit
-) {
-    Column {
-        Text(text = name)
-        PanelRow(progresses, onPanelClick = onPanelClick)
-    }
-}
-
-@Composable
-fun CheckContent(commitNames: List<String>, onCommitClick: (String) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        items(commitNames) {
-            Row() {
-                Text(text = "daily tasks: $it", fontSize = 25.sp)
-                Button(onClick = { onCommitClick(it) }) {
-                    Icon(Icons.Default.Done, "done")
-                }
-            }
-            Spacer(modifier = Modifier.size(10.dp))
-        }
-    }
-}
-
-
-@Composable
-fun RegisterContent(handleAddClick: (String) -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "register content")
-        var text by remember {
-            mutableStateOf("")
-        }
-        Row() {
-            TextField(
-                value = text,
-                onValueChange = { text = it },
-                label = { Text(text = "name") },
-            )
-            Button(onClick = {
-                if (text.isNotEmpty()) {
-                    handleAddClick(text)
-                }
-            }) {
-                Text(text = "Add")
-            }
-        }
-    }
-}
-
-@Composable
-fun PanelRow(
-    panels: SnapshotStateList<Boolean>,
-    onPanelClick: (Int) -> Unit,
-) {
-    Row {
-        panels.forEachIndexed { index, panel ->
-            Panel(
-                panel,
-                onClick = { onPanelClick(index) }
-            )
-        }
-    }
-}
-
-@Composable
-fun Panel(panel: Boolean, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .size(30.dp),
-        colors = when (panel) {
-            true ->
-                ButtonDefaults.textButtonColors(
-                    backgroundColor = Glass
-                )
-            false ->
-                ButtonDefaults.textButtonColors(
-                    backgroundColor = Color.White
-                )
-        }
-    ) {
     }
 }
