@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.shiba.ui.theme.Glass
+import java.sql.Date
+import java.time.LocalDate
 
 @Composable
 fun MainScreen() {
@@ -73,11 +75,50 @@ fun ListsContent(
     progresses: SnapshotStateList<Boolean>,
     onPanelClick: (Int) -> Unit
 ) {
+
+    val dummyRecentCommits: List<Commit> = listOf(
+        Commit(0, "dev", Date.valueOf(LocalDate.now().toString())),
+        Commit(
+            0, "dev", Date.valueOf(LocalDate.now().minusDays(1).toString())
+        ),
+        Commit(
+            0, "read", Date.valueOf(LocalDate.now().minusDays(5).toString())
+        ),
+        Commit(
+            0, "dev", Date.valueOf(LocalDate.now().minusDays(2).toString())
+        )
+    )
+    // TODO use ViewModel
+    val hasCommitsInWeek: SnapshotStateList<Boolean> = List(7) { index ->
+        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
+        dummyRecentCommits.any { it.date == nDaysAgo }
+    }.reversed().toMutableStateList()
+    val hasCommitsInWeekAboutRead: SnapshotStateList<Boolean> = List(7) { index ->
+        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
+        dummyRecentCommits.any { it.date == nDaysAgo && it.name == "read" }
+    }.reversed().toMutableStateList()
+    val hasCommitsInWeekAboutDev: SnapshotStateList<Boolean> = List(7) { index ->
+        val nDaysAgo = Date.valueOf(LocalDate.now().minusDays(index.toLong()).toString())
+        dummyRecentCommits.any { it.date == nDaysAgo && it.name == "dev" }
+    }.reversed().toMutableStateList()
+
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
+
+        dummyRecentCommits.forEach {
+            Text(text = it.toString())
+        }
+        Text(text = "read")
+        PanelRow(panels = hasCommitsInWeekAboutRead, onPanelClick = {})
+        Text(text = "dev")
+        PanelRow(panels = hasCommitsInWeekAboutDev, onPanelClick = {})
+        Text(text = "total")
+        PanelRow(panels = hasCommitsInWeek, onPanelClick = {})
+
         Text(
             text = "recent 7 days",
             fontSize = 20.sp
