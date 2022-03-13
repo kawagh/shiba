@@ -35,18 +35,10 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     }
     val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
 
-    // Livedata.observeAsState can be invoked in composableScope so I dont know how to do this convert in viewmodel
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
-    (0 until 7L).forEach {
-        if (daysWithCommits.contains(
-                LocalDate.now().minusDays(it).toString()
-            )
-        ) progressesDummy[6 - it.toInt()] =
-            true
-    }
-    //
+    val recentProgress = viewModel.commitsInDatabase.observeAsState(listOf()).toRecentProgress()
 
     Scaffold(
         topBar =
@@ -56,7 +48,9 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 Text(
                     text = allCommitsInDatabase.value.toString()
                 )
-                Text(text = daysWithCommits.toString())
+                Text(
+                    text = daysWithCommits.toString()
+                )
                 Text(text = viewModel.getCommitIds().toString())
                 Button(onClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) }) {
                     Text(text = "add")
@@ -87,6 +81,11 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                             progresses = progressesTotal,
                             onPanelClick = onPanelClick,
                             name = "total"
+                        )
+                        ListsContent(
+                            progresses = recentProgress,
+                            onPanelClick = onPanelClick,
+                            name = "dummy2"
                         )
                         ListsContent(
                             progresses = progressesDummy,
