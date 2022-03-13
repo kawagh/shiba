@@ -33,20 +33,7 @@ fun MainScreen() {
         { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
         content = {
             when (tabItems[selectedTabIndex]) {
-                TabItem.Lists -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        Text(
-                            text = "recent 7 days",
-                            fontSize = 20.sp
-                        )
-                        PanelRow(panels = progresses, onPanelClick = onPanelClick)
-
-                    }
-                }
+                TabItem.Lists -> ListsContent(progresses = progresses, onPanelClick = onPanelClick)
                 TabItem.Check -> CheckContent()
                 TabItem.Register -> RegisterContent()
             }
@@ -80,6 +67,25 @@ fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick:
         }
     }
 }
+
+@Composable
+fun ListsContent(
+    progresses: SnapshotStateList<Boolean>,
+    onPanelClick: (Int) -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "recent 7 days",
+            fontSize = 20.sp
+        )
+        PanelRow(panels = progresses, onPanelClick = onPanelClick)
+    }
+}
+
 
 @Composable
 fun CheckContent() {
