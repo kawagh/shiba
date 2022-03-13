@@ -1,9 +1,11 @@
 package com.example.shiba
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -42,10 +44,11 @@ fun MainScreen() {
 
                     }
                 }
+                1 -> CheckContent()
+                2 -> RegisterContent()
                 else -> {
-                    Text(text = "unimplemented")
+                    Text(text = "not reach")
                 }
-
             }
         },
         bottomBar = {
@@ -69,6 +72,30 @@ fun BottomNavigation(selectedTabIndex: Int, onTabClick: (Int) -> Unit) {
             )
         }
     }
+}
+
+@Composable
+fun CheckContent() {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        items(5) {
+            Row() {
+                Text(text = "daily tasks: $it", fontSize = 25.sp)
+                Button(onClick = { /*TODO*/ }) {
+                    Icon(Icons.Default.Done, "done")
+                }
+            }
+            Spacer(modifier = Modifier.size(10.dp))
+        }
+    }
+}
+
+@Composable
+fun RegisterContent() {
+    Text(text = "register content")
 }
 
 @Composable
