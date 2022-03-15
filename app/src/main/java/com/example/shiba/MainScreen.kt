@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
@@ -26,7 +27,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
-    val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register)
+    val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register, TabItem.Statistics)
 
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
@@ -58,6 +59,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                     onCommitClick = handleCommitClick,
                 )
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
+                TabItem.Statistics -> StatisticContent(allCommitsInDatabase.value.size)
             }
         },
         bottomBar = {
@@ -74,6 +76,7 @@ sealed class TabItem(val name: String, val icon: ImageVector) {
     object Lists : TabItem("Lists", Icons.Filled.List)
     object Check : TabItem("Check", Icons.Filled.Done)
     object Register : TabItem("Register", Icons.Filled.Add)
+    object Statistics : TabItem("Stat", Icons.Filled.Assessment)
 }
 
 @Composable
