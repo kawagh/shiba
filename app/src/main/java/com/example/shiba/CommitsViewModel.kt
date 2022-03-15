@@ -52,15 +52,17 @@ class CommitsViewModel(application: Application) : AndroidViewModel(application)
     }.reversed().toMutableStateList()
 }
 
-fun State<List<Commit>>.toRecentProgress(): SnapshotStateList<Int> = List(7) { index ->
+const val DAYS_IN_A_WEEK: Int = 7
+
+fun State<List<Commit>>.toRecentProgress(): SnapshotStateList<Int> = List(DAYS_IN_A_WEEK) { index ->
     val daysWithCommits = this.value.map { it.date }
     daysWithCommits.count { it == LocalDate.now().minusDays((6 - index).toLong()).toString() }
 }.toMutableStateList()
 
 fun State<List<Commit>>.toRecentProgressAbout(name: String): SnapshotStateList<Int> =
-    List(7) { index ->
+    List(DAYS_IN_A_WEEK) { index ->
         val daysWithCommits = this.value.filter { it.name == name }.map { it.date }
         daysWithCommits.count {
-            it == LocalDate.now().minusDays((6 - index).toLong()).toString()
+            it == LocalDate.now().minusDays((DAYS_IN_A_WEEK - 1 - index).toLong()).toString()
         }
     }.toMutableStateList()

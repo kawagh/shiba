@@ -31,7 +31,7 @@ fun ListContent(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "recent 7 days",
+            text = "recent $DAYS_IN_A_WEEK days",
             fontSize = 20.sp
         )
         recentProgresses.forEach { (commitName, progresses) ->
@@ -63,9 +63,9 @@ fun PanelRow(
     onPanelClick: (Int) -> Unit,
 ) {
     Row {
-        panels.forEachIndexed { index, panel ->
+        panels.forEachIndexed { index, commitCount ->
             Panel(
-                panel,
+                commitCount,
                 onClick = { onPanelClick(index) }
             )
         }
@@ -73,12 +73,12 @@ fun PanelRow(
 }
 
 @Composable
-fun Panel(panel: Int, onClick: () -> Unit) {
+fun Panel(commitCount: Int, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .size(30.dp),
-        colors = when (panel) {
+        colors = when (commitCount) {
             0 ->
                 ButtonDefaults.textButtonColors(
                     backgroundColor = Color.White
