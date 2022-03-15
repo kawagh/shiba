@@ -31,7 +31,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
 
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
-    val CommitsCountMap: Map<String, Int> =
+    val commitsCountMap: Map<String, Int> =
         allCommitsInDatabase.value.groupingBy { it.name }.eachCount()
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
 
@@ -83,7 +83,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
                 TabItem.Statistics -> StatisticContent(
                     allCommitsInDatabase.value.size,
-                    CommitsCountMap
+                    commitsCountMap
                 )
             }
         },
