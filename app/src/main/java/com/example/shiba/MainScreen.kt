@@ -31,6 +31,8 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
 
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
+    val CommitsCountMap: Map<String, Int> =
+        allCommitsInDatabase.value.groupingBy { it.name }.eachCount()
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
 
     val totalRecentProgress =
@@ -59,7 +61,10 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                     onCommitClick = handleCommitClick,
                 )
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
-                TabItem.Statistics -> StatisticContent(allCommitsInDatabase.value.size)
+                TabItem.Statistics -> StatisticContent(
+                    allCommitsInDatabase.value.size,
+                    CommitsCountMap
+                )
             }
         },
         bottomBar = {

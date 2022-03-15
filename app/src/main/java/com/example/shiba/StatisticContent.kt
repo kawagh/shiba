@@ -9,7 +9,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun StatisticContent(allCommitsCount: Int) {
+fun StatisticContent(allCommitsCount: Int, commitCountMap: Map<String, Int>) {
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -19,11 +19,17 @@ fun StatisticContent(allCommitsCount: Int) {
             text = "Total Commits: $allCommitsCount",
             fontSize = 45.sp
         )
+        commitCountMap.forEach { (name, count) ->
+            Text(
+                text = "$name: $count",
+                fontSize = 45.sp
+            )
+        }
     }
 }
 
 @Preview
 @Composable
 fun PreviewStatisticContent() {
-    StatisticContent(allCommitsCount = 4)
+    StatisticContent(allCommitsCount = 4, mapOf("A" to 3, "B" to 4))
 }
