@@ -3,10 +3,7 @@ package com.example.shiba
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -27,6 +24,9 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     var selectedTabIndex by remember {
         mutableStateOf(0)
     }
+    var showDeleteDialog by remember {
+        mutableStateOf(false)
+    }
     val tabItems = listOf(TabItem.Lists, TabItem.Check, TabItem.Register, TabItem.Statistics)
 
     val allCommitsInDatabase: State<List<Commit>> =
@@ -46,7 +46,16 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     }
     Scaffold(
         topBar =
-        { TopAppBar(title = { Text(text = stringResource(id = R.string.app_name)) }) },
+        {
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.app_name)) },
+                actions = {
+                    IconButton(onClick = { showDeleteDialog = true }) {
+                        Icon(Icons.Filled.Delete, "delete commits")
+                    }
+                }
+            )
+        },
         content = {
             DebugSection(
                 allCommits = allCommitsInDatabase.value,
@@ -54,6 +63,17 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 onAddClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) },
                 onClearClick = { viewModel.clear() }
             )
+            if (showDeleteDialog) {
+                DeleteDialog(
+                    onConfirmClick = {
+                        showDeleteDialog = false
+                        viewModel.clear()
+                    },
+                    onDismissClick = {
+                        showDeleteDialog = false
+                    }
+                )
+            }
             when (tabItems[selectedTabIndex]) {
                 TabItem.Lists -> ListContent(recentProgressMap, totalRecentProgress, onPanelClick)
                 TabItem.Check -> CheckContent(
@@ -75,6 +95,26 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
             )
         }
     )
+}
+
+@Composable
+fun DeleteDialog(onConfirmClick: () -> Unit, onDismissClick: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = {},
+        title = { Text(text = "delete commits") },
+        text = { Text(text = "If you delete, you never recovery your commits.") },
+        confirmButton = {
+            TextButton(onClick = onConfirmClick) {
+                Text(text = "delete")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissClick) {
+                Text(text = "cancel")
+            }
+        }
+    )
+
 }
 
 sealed class TabItem(val name: String, val icon: ImageVector) {
