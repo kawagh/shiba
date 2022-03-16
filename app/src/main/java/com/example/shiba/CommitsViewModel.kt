@@ -63,6 +63,12 @@ class CommitsViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun deleteCommitsAbout(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            db.commitDao().deleteCommitsAbout(name)
+        }
+    }
+
     fun clear() {
         viewModelScope.launch(Dispatchers.IO) {
             db.commitDao().deleteAll()
