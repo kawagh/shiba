@@ -10,6 +10,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shiba.network.UserInfoResponse
 import java.time.LocalDate
 
 @Composable
@@ -31,10 +32,15 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
 
     val allCommitsInDatabase: State<List<Commit>> =
         viewModel.commitsInDatabase.observeAsState(initial = listOf())
+    // for StatContent
     val commitsCountMap: Map<String, Int> =
         allCommitsInDatabase.value.groupingBy { it.name }.eachCount()
+    val gitHubUserInfo = viewModel.response.observeAsState(initial = UserInfoResponse(-1)).value
+
+
     val daysWithCommits = allCommitsInDatabase.value.map { it.date }.distinct()
 
+    // for ListsContent
     val totalRecentProgress =
         viewModel.commitsInDatabase.observeAsState(initial = listOf()).toRecentProgress()
     val recentProgressMap: Map<String, SnapshotStateList<Int>> =
@@ -44,6 +50,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     val handleCommitClick: (String) -> Unit = {
         viewModel.insert(Commit(id = 0, it, LocalDate.now().toString()))
     }
+
     Scaffold(
         topBar =
         {
@@ -83,7 +90,8 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
                 TabItem.Statistics -> StatisticContent(
                     allCommitsInDatabase.value.size,
-                    commitsCountMap
+                    commitsCountMap,
+                    gitHubUserInfo,
                 )
             }
         },

@@ -7,9 +7,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.example.shiba.network.UserInfoResponse
 
 @Composable
-fun StatisticContent(allCommitsCount: Int, commitCountMap: Map<String, Int>) {
+fun StatisticContent(
+    allCommitsCount: Int,
+    commitCountMap: Map<String, Int>,
+    githubUserInfo: UserInfoResponse
+) {
     Column(
         Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -25,11 +30,26 @@ fun StatisticContent(allCommitsCount: Int, commitCountMap: Map<String, Int>) {
                 fontSize = 45.sp
             )
         }
+        githubUserInfoColumn(githubUserInfo = githubUserInfo)
     }
+}
+
+@Composable
+fun githubUserInfoColumn(githubUserInfo: UserInfoResponse) {
+    Column() {
+        Text(
+            text = "publicRepos: ${githubUserInfo.public_repos}",
+            fontSize = 45.sp
+        )
+    }
+
 }
 
 @Preview
 @Composable
 fun PreviewStatisticContent() {
-    StatisticContent(allCommitsCount = 4, mapOf("A" to 3, "B" to 4))
+    StatisticContent(
+        allCommitsCount = 4, mapOf("A" to 3, "B" to 4),
+        UserInfoResponse(-1)
+    )
 }

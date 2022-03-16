@@ -6,15 +6,41 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.shiba.network.GithubApi
+import com.example.shiba.network.UserInfoResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import retrofit2.await
+import java.lang.Exception
 import java.sql.Date
 import java.time.LocalDate
 
 class CommitsViewModel(application: Application) : AndroidViewModel(application) {
     private val db: AppDatabase = AppDatabase.getInstance(application)
     internal val commitsInDatabase: LiveData<List<Commit>> = db.commitDao().getAll()
+
+    private val _response = MutableLiveData<UserInfoResponse>()
+
+    // The external immutable LiveData for the request status
+    val response: LiveData<UserInfoResponse> = _response
+
+    init {
+        getGitHubUserInfo()
+    }
+
+    private fun getGitHubUserInfo() {
+        viewModelScope.launch {
+            try {
+                val result = GithubApi.retrofitService.fetchUserInfo().await()
+                _response.value = result
+            } catch (e: Exception) {
+                UserInfoResponse(-1).also { _response.value = it }
+            }
+        }
+
+    }
 
 
     private val dummyRecentCommits: List<Commit> = listOf(
