@@ -51,6 +51,11 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         viewModel.insert(Commit(id = 0, it, LocalDate.now().toString()))
     }
 
+    // for CheckContent
+    val handleDeleteClick: (String) -> Unit = {
+        viewModel.deleteCommitsAbout(it)
+    }
+
     Scaffold(
         topBar =
         {
@@ -86,6 +91,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 TabItem.Check -> CheckContent(
                     commitNames = uniqueCommitNames,
                     onCommitClick = handleCommitClick,
+                    onDeleteClick = handleDeleteClick,
                 )
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
                 TabItem.Statistics -> StatisticContent(

@@ -16,4 +16,7 @@ interface CommitDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(commit: Commit)
+
+    @Query("DELETE FROM commits WHERE name = :name")
+    fun deleteCommitsAbout(name: String)
 }
