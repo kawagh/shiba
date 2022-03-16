@@ -56,12 +56,20 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         viewModel.deleteCommitsAbout(it)
     }
 
+    var isDeveloperMode by remember {
+        mutableStateOf(false)
+    }
+
+
     Scaffold(
         topBar =
         {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
                 actions = {
+                    IconButton(onClick = { isDeveloperMode = !isDeveloperMode }) {
+                        Icon(Icons.Filled.Build, "toggle developer mode")
+                    }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Filled.Delete, "delete commits")
                     }
@@ -69,12 +77,14 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
             )
         },
         content = {
-            DebugSection(
-                allCommits = allCommitsInDatabase.value,
-                daysWithCommits = daysWithCommits,
-                onAddClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) },
-                onClearClick = { viewModel.clear() }
-            )
+            if (isDeveloperMode) {
+                DebugSection(
+                    allCommits = allCommitsInDatabase.value,
+                    daysWithCommits = daysWithCommits,
+                    onAddClick = { viewModel.insert(Commit(0, "a", LocalDate.now().toString())) },
+                    onClearClick = { viewModel.clear() }
+                )
+            }
             if (showDeleteDialog) {
                 DeleteDialog(
                     onConfirmClick = {
