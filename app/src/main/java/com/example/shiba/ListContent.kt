@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.shiba.ui.components.GuideToRegisterContent
 import com.example.shiba.ui.theme.Glass
 import com.example.shiba.ui.theme.HeavyGlass
 import com.example.shiba.ui.theme.LightGlass
@@ -24,6 +25,7 @@ fun ListContent(
     recentProgresses: Map<String, SnapshotStateList<Int>>,
     progressesTotal: SnapshotStateList<Int>,
     onPanelClick: (Int) -> Unit,
+    onRegisterClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -42,6 +44,10 @@ fun ListContent(
             progresses = progressesTotal,
             onPanelClick = onPanelClick
         )
+        if (recentProgresses.keys.isEmpty()) {
+            Spacer(modifier = Modifier.size(25.dp))
+            GuideToRegisterContent(onRegisterClick = onRegisterClick)
+        }
     }
 }
 

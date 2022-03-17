@@ -9,6 +9,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shiba.network.UserInfoResponse
 import java.time.LocalDate
@@ -59,6 +60,7 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
     var isDeveloperMode by remember {
         mutableStateOf(false)
     }
+    val onRegisterClick = { selectedTabIndex = tabItems.indexOf(TabItem.Register) }
 
 
     Scaffold(
@@ -97,11 +99,17 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
                 )
             }
             when (tabItems[selectedTabIndex]) {
-                TabItem.Lists -> ListContent(recentProgressMap, totalRecentProgress, onPanelClick)
+                TabItem.Lists -> ListContent(
+                    recentProgressMap,
+                    totalRecentProgress,
+                    onPanelClick,
+                    onRegisterClick,
+                )
                 TabItem.Check -> CheckContent(
                     commitNames = uniqueCommitNames,
                     onCommitClick = handleCommitClick,
                     onDeleteClick = handleDeleteClick,
+                    onRegisterClick = onRegisterClick,
                 )
                 TabItem.Register -> RegisterContent(handleAddClick = handleCommitClick)
                 TabItem.Statistics -> StatisticContent(
