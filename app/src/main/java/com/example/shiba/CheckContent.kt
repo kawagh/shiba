@@ -20,38 +20,49 @@ fun CheckContent(
     commitNames: List<String>,
     onCommitClick: (String) -> Unit,
     onDeleteClick: (String) -> Unit,
+    onRegisterClick: () -> Unit,
 ) {
     var shouldSHowDelete by remember {
         mutableStateOf(false)
     }
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        items(commitNames) { commitName ->
-            Row() {
-                Text(text = "daily tasks: $commitName", fontSize = 25.sp)
-                Button(onClick = { onCommitClick(commitName) }) {
-                    Icon(Icons.Default.Done, "done")
-                }
-                when (shouldSHowDelete) {
-                    true -> {
-                        IconButton(onClick = { shouldSHowDelete = !shouldSHowDelete }) {
-                            Icon(Icons.Filled.KeyboardArrowLeft, "hide button")
+    when (commitNames.isEmpty()) {
+        true -> Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            GuideToRegisterContent(onRegisterClick = onRegisterClick)
+        }
+        false ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                items(commitNames) { commitName ->
+                    Row() {
+                        Text(text = "daily tasks: $commitName", fontSize = 25.sp)
+                        Button(onClick = { onCommitClick(commitName) }) {
+                            Icon(Icons.Default.Done, "done")
                         }
-                        IconButton(onClick = { onDeleteClick(commitName) }) {
-                            Icon(Icons.Filled.Delete, "delete")
+                        when (shouldSHowDelete) {
+                            true -> {
+                                IconButton(onClick = { shouldSHowDelete = !shouldSHowDelete }) {
+                                    Icon(Icons.Filled.KeyboardArrowLeft, "hide button")
+                                }
+                                IconButton(onClick = { onDeleteClick(commitName) }) {
+                                    Icon(Icons.Filled.Delete, "delete")
+                                }
+                            }
+                            false -> {
+                                IconButton(onClick = { shouldSHowDelete = !shouldSHowDelete }) {
+                                    Icon(Icons.Filled.KeyboardArrowRight, "open button")
+                                }
+                            }
                         }
                     }
-                    false -> {
-                        IconButton(onClick = { shouldSHowDelete = !shouldSHowDelete }) {
-                            Icon(Icons.Filled.KeyboardArrowRight, "open button")
-                        }
-                    }
+                    Spacer(modifier = Modifier.size(10.dp))
                 }
             }
-            Spacer(modifier = Modifier.size(10.dp))
-        }
     }
 }

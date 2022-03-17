@@ -24,6 +24,7 @@ fun ListContent(
     recentProgresses: Map<String, SnapshotStateList<Int>>,
     progressesTotal: SnapshotStateList<Int>,
     onPanelClick: (Int) -> Unit,
+    onRegisterClick: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -42,6 +43,10 @@ fun ListContent(
             progresses = progressesTotal,
             onPanelClick = onPanelClick
         )
+        if (recentProgresses.keys.isEmpty()) {
+            Spacer(modifier = Modifier.size(25.dp))
+            GuideToRegisterContent(onRegisterClick = onRegisterClick)
+        }
     }
 }
 
