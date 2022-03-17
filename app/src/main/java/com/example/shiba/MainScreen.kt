@@ -189,13 +189,3 @@ fun BottomNavigation(tabItems: List<TabItem>, selectedTabIndex: Int, onTabClick:
         }
     }
 }
-
-@Composable
-fun GuideToRegisterContent(onRegisterClick: () -> Unit) {
-    Column() {
-        Text(text = "There is no task.", fontSize = 25.sp)
-        Button(onClick = onRegisterClick) {
-            Text(text = "register new task")
-        }
-    }
-}
