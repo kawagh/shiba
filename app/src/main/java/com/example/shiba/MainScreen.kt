@@ -7,15 +7,19 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.shiba.network.UserInfoResponse
+import com.example.shiba.ui.theme.HeavyGlass
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import java.time.LocalDate
 
 @Composable
 fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
+    val systemUiController = rememberSystemUiController()
     val progressesDummy = List(7) { false }.toMutableStateList()
     val onPanelClick: (Int) -> Unit = {
         progressesDummy[it] = !progressesDummy[it]
@@ -61,6 +65,10 @@ fun MainScreen(viewModel: CommitsViewModel = viewModel()) {
         mutableStateOf(false)
     }
     val onRegisterClick = { selectedTabIndex = tabItems.indexOf(TabItem.Register) }
+
+    SideEffect {
+        systemUiController.setSystemBarsColor(HeavyGlass)
+    }
 
 
     Scaffold(
